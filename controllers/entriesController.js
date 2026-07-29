@@ -39,21 +39,7 @@ export const update = async (req, res) => {
   res.status(200).json(result.value);
 };
 
-export const destroy = async (req, res) => {
-  const { id } = req.params;
-  if (!isValidId(id)) {
-    res.status(400).json({ error: 'id must be a valid id' });
-    return;
-  }
-  const result = await entriesService.deleteEntry(id);
-  if (!result.ok) {
-    res.status(result.error.status).json({ error: result.error.message });
-    return;
-  }
-  res.status(204).send();
-};
-
-export const favorite = async (req, res) => {
+export const toggleFavorite = async (req, res) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     res.status(400).json({ error: 'id must be a valid id' });
@@ -65,4 +51,18 @@ export const favorite = async (req, res) => {
     return;
   }
   res.status(200).json(result.value);
+};
+
+export const destroy = async (req, res) => {
+  const { id } = req.params;
+  if (!isValidId(id)) {
+    res.status(400).json({ error: 'id must be a valid id' });
+    return;
+  }
+  const result = await entriesService.deleteEntry(id);
+  if (!result.ok) {
+    res.status(result.error.status).json({ error: result.error.message });
+    return;
+  }
+  res.status(200).send('');
 };

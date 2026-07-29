@@ -26,14 +26,9 @@ form.addEventListener('submit', async (event) => {
   item.dataset.title = saved.title;
   item.dataset.body = saved.body;
   item.dataset.favorite = saved.favorite;
-
-  let star = '☆';
-
-  if (saved.favorite) {
-    star = '★';
-  }
-  item.innerHTML = `<span class="entry-display"><strong>${saved.title}:</strong> ${saved.body}</span><button class="favorite-btn" type="button">${star}</button><button class="edit-btn" type="button">Edit</button><button class="delete-btn" type="button">Delete</button>`;
+  item.innerHTML = `<span class="entry-display"><strong>${saved.title}:</strong> ${saved.body}</span><button class="favorite-btn" type="button">${saved.favorite ? '★' : '☆'}</button><button class="edit-btn hover:bg-teal-50" type="button">Edit</button><button class="delete-btn hover:bg-red-50" hx-delete="/entries/${saved.id}" hx-target="closest li" hx-swap="outerHTML" hx-confirm="Delete this entry?" hx-indicator="next .delete-indicator">Delete</button><span class="delete-indicator htmx-indicator">Deleting...</span>`;
   list.append(item);
+  htmx.process(item);
 
   form.reset();
 });
@@ -43,12 +38,12 @@ const startEdit = (item) => {
   const buttons = item.querySelectorAll('.edit-btn, .delete-btn');
 
   const editForm = document.createElement('form');
-  editForm.className = 'edit-form';
+  editForm.className = 'flex flex-col flex-1 gap-2 sm:flex-row';
   editForm.innerHTML = `
-    <input type="text" name="title" value="${item.dataset.title}">
-    <input type="text" name="body" value="${item.dataset.body}">
-    <button type="submit">Save</button>
-    <button type="button" class="cancel-btn">Cancel</button>
+    <input type="text" name="title" value="${item.dataset.title}" class="form-input">
+    <input type="text" name="body" value="${item.dataset.body}" class="form-input">
+    <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white rounded px-4 py-2">Save</button>
+    <button type="button" class="cancel-btn bg-gray-500 text-white rounded px-4 py-2">Cancel</button>
   `;
 
   display.replaceWith(editForm);
@@ -87,48 +82,20 @@ const startEdit = (item) => {
 };
 
 list.addEventListener('click', async (event) => {
-  if (event.target.matches('.favorite-btn')) {
-    const button = event.target;
-    const item = button.closest('li');
-    
-    const response = await fetch(`/entries/${item.dataset.id}/favorite`, {
-      method: 'PATCH',
-    });
-
-    if (!response.ok) {
-      const{ error } = await response.json();
-      alert(error);
-      return;
-    }
-
-    const saved = await response.json();
-    
-    item.dataset.favorite = saved.favorite;
-
-    if (saved.favorite) {
-      button.textContent = '★' ;
-    } else {
-      button.textContent = '☆';
-    }
-    return;
-  }
-
   if (event.target.matches('.edit-btn')) {
     startEdit(event.target.closest('li'));
     return;
   }
 
-  if (!event.target.matches('.delete-btn')) return;
+  if (!event.target.matches('.favorite-btn')) return;
 
   const button = event.target;
   const item = button.closest('li');
-  const id = item.dataset.id;
 
-  button.disabled = true;
-  try {
-    await fetch(`/entries/${id}`, { method: 'DELETE' });
-    item.remove();
-  } catch {
-    button.disabled = false;
-  }
+  const response = await fetch(`/entries/${item.dataset.id}/favorite`, { method: 'PATCH' });
+  if (!response.ok) return;
+
+  const saved = await response.json();
+  item.dataset.favorite = saved.favorite;
+  button.textContent = saved.favorite ? '★' : '☆';
 });

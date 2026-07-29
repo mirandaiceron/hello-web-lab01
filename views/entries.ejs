@@ -4,22 +4,31 @@
     <meta charset="UTF-8">
     <title><%= title %></title>
     <link rel="stylesheet" href="/style.css">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   </head>
   <body>
     <%- include('partials/header') %>
     <main>
-      <form id="entry-form">
-        <input type="text" name="title" placeholder="Title">
-        <input type="text" name="body" placeholder="Body">
-        <button type="submit">Add entry</button>
+      <form id="entry-form" class="flex flex-col gap-2 mb-6 sm:flex-row">
+        <input type="text" name="title" placeholder="Title" class="flex-1 border border-gray-300 rounded p-2">
+        <input type="text" name="body" placeholder="Body" class="flex-1 border border-gray-300 rounded p-2">
+        <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white rounded px-4 py-2">Add entry</button>
       </form>
       <ul id="entries">
         <% entries.forEach((entry) => { %>
           <li data-id="<%= entry.id %>" data-title="<%= entry.title %>" data-body="<%= entry.body %>" data-favorite="<%= entry.favorite %>">
             <span class="entry-display"><strong><%= entry.title %>:</strong> <%= entry.body %></span>
-            <button class="favorite-btn" type="button"><% if (entry.favorite) {%> ★ <%} else { %> ☆ <% } %></button>
-            <button class="edit-btn" type="button">Edit</button>
-            <button class="delete-btn" type="button">Delete</button>
+            <button class="favorite-btn" type="button"><%= entry.favorite ? '★' : '☆' %></button>
+            <button class="edit-btn hover:bg-teal-50" type="button">Edit</button>
+            <button
+              class="delete-btn hover:bg-red-50"
+              hx-delete="/entries/<%= entry.id %>"
+              hx-target="closest li"
+              hx-swap="outerHTML"
+              hx-confirm="Delete this entry?"
+              hx-indicator="next .delete-indicator"
+            >Delete</button>
+            <span class="delete-indicator htmx-indicator">Deleting...</span>
           </li>
         <% }); %>
       </ul>
