@@ -14,9 +14,10 @@
         <button type="submit">Add entry</button>
       </form>
       <ul id="entries">
-        <% entries.forEach((entry, index) => { %>
-          <li data-id="<%= index %>" data-title="<%= entry.title %>" data-body="<%= entry.body %>">
+        <% entries.forEach((entry) => { %>
+          <li data-id="<%= entry.id %>" data-title="<%= entry.title %>" data-body="<%= entry.body %>" data-favorite="<%= entry.favorite %>">
             <span class="entry-display"><strong><%= entry.title %>:</strong> <%= entry.body %></span>
+            <button class="favorite-btn" type="button"><% if (entry.favorite) {%> ★ <%} else { %> ☆ <% } %></button>
             <button class="edit-btn" type="button">Edit</button>
             <button class="delete-btn" type="button">Delete</button>
           </li>

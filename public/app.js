@@ -22,10 +22,17 @@ form.addEventListener('submit', async (event) => {
   const saved = await response.json();
 
   const item = document.createElement('li');
-  item.dataset.id = list.children.length;
+  item.dataset.id = saved.id;
   item.dataset.title = saved.title;
   item.dataset.body = saved.body;
-  item.innerHTML = `<span class="entry-display"><strong>${saved.title}:</strong> ${saved.body}</span><button class="edit-btn" type="button">Edit</button><button class="delete-btn" type="button">Delete</button>`;
+  item.dataset.favorite = saved.favorite;
+
+  let star = '☆';
+
+  if (saved.favorite) {
+    star = '★';
+  }
+  item.innerHTML = `<span class="entry-display"><strong>${saved.title}:</strong> ${saved.body}</span><button class="favorite-btn" type="button">${star}</button><button class="edit-btn" type="button">Edit</button><button class="delete-btn" type="button">Delete</button>`;
   list.append(item);
 
   form.reset();
@@ -80,6 +87,32 @@ const startEdit = (item) => {
 };
 
 list.addEventListener('click', async (event) => {
+  if (event.target.matches('.favorite-btn')) {
+    const button = event.target;
+    const item = button.closest('li');
+    
+    const response = await fetch(`/entries/${item.dataset.id}/favorite`, {
+      method: 'PATCH',
+    });
+
+    if (!response.ok) {
+      const{ error } = await response.json();
+      alert(error);
+      return;
+    }
+
+    const saved = await response.json();
+    
+    item.dataset.favorite = saved.favorite;
+
+    if (saved.favorite) {
+      button.textContent = '★' ;
+    } else {
+      button.textContent = '☆';
+    }
+    return;
+  }
+
   if (event.target.matches('.edit-btn')) {
     startEdit(event.target.closest('li'));
     return;
