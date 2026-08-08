@@ -21,7 +21,7 @@
             <button class="favorite-btn" type="button"><%= entry.favorite ? '★' : '☆' %></button>
             <button class="edit-btn hover:bg-teal-50" type="button">Edit</button>
             <button
-              class="delete-btn hover:bg-red-50"
+              class="delete-btn hover:bg-red-100 hover:text-red-800"
               hx-delete="/entries/<%= entry.id %>"
               hx-target="closest li"
               hx-swap="outerHTML"

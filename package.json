@@ -9,8 +9,10 @@
     "build:css": "tailwindcss -i ./src/input.css -o ./public/style.css"
   },
   "dependencies": {
+    "connect-mongo": "^6.0.0",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "express-session": "^1.19.0",
     "mongoose": "^8.5.0",
     "morgan": "^1.10.0"
   },

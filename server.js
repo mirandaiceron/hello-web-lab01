@@ -1,10 +1,15 @@
 import express from 'express';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import entriesRouter from './routes/entries.js';
+import authRouter from './routes/auth.js';
+import { attachUser } from './middleware/attachUser.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-in-production';
 
 await mongoose.connect(
   process.env.MONGODB_URI || 'mongodb://dev:devpassword@mongo:27017/devdb'
@@ -23,7 +28,18 @@ app.use((req, res, next) => {
 });
 
 app.use(morgan('dev'));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI || 'mongo://dev:devpassword@mongo:27017/devdb',
+  }),
+}));
 
+app.use(attachUser);
+
+app.use(authRouter);
 app.use('/entries', entriesRouter);
 
 app.use((req, res) => {
@@ -37,10 +53,4 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
-});// checkpoint 1
-// checkpoint 2
-// checkpoint 3
-// BUG: off-by-one introduced here
-// checkpoint 4
-// checkpoint 5
-// stable checkpoint
+});
