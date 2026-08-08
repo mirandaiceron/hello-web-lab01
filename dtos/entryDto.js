@@ -3,4 +3,5 @@ export const toEntryDto = (entry) => ({
   title: entry.title,
   body: entry.body,
   favorite: entry.favorite,
+  ownderId: entry.ownerId.toString(),
 });
